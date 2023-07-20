@@ -1,0 +1,645 @@
+{\rtf1\ansi\ansicpg1252\deff0\nouicompat\deflang1033{\fonttbl{\f0\fnil\fcharset0 Calibri;}}
+{\*\generator Riched20 10.0.17763}\viewkind4\uc1 
+\pard\sa200\sl276\slmult1\f0\fs22\lang19 rm(list=ls())\par
+\par
+library (foreign)\par
+\par
+rawdata = read.spss("Z:/Annelot/Animal fluency/Data_animalfluency+baan+DATCAT12.sav", to.data.frame=TRUE)\par
+summary(rawdata$smsmmse)\par
+\par
+library (tableone)\par
+library (table1)\par
+\par
+#dataset maken met alleen de benodigde variabelen\par
+datacleaned <- c("studienr", "AL_5", "AL_5A", "AL_6A", "AL_6B", "AL_6C", "AL_6D", "AL_6E", "AL_6F", "AL_6G", "AL_6H", "baan", "sex", "age", "education", "smsvfdieren", "beroep", "sms15wttc", "sms15wtrc", "smsreyrec", "WT15_tot", "WT15_dr", "reyrec", "CorticalThicknessMean.Medea", "CorticalThicknessMean.SMS", "AgeMedea15T", "vfdieren_g", "wm_tot", "gm_tot", "csf_tot", "ICV", "VolumeWMH", "neuromorphometrics_lHip_Vgm", "neuromorphometrics_rHip_Vgm", "CorticalThicknessMean", "smsvfletter", "smsmmse", "smsnlvscor")\par
+datacleaned <- rawdata[datacleaned]\par
+rm (rawdata)\par
+summary(datacleaned$smsmmse)\par
+\par
+#coding numeric/factor\par
+datacleaned$AL_5 <-as.factor (datacleaned$AL_5)\par
+datacleaned$AL_5A <-as.factor (datacleaned$AL_5A)\par
+datacleaned$AL_6A <-as.factor (datacleaned$AL_6A)\par
+datacleaned$AL_6B <-as.factor (datacleaned$AL_6B)\par
+datacleaned$AL_6C <-as.factor (datacleaned$AL_6C)\par
+datacleaned$AL_6D <-as.factor (datacleaned$AL_6D)\par
+datacleaned$AL_6E <-as.factor (datacleaned$AL_6E)\par
+datacleaned$AL_6F <-as.factor (datacleaned$AL_6F)\par
+datacleaned$AL_6G <-as.factor (datacleaned$AL_6G)\par
+datacleaned$AL_6H <-as.factor (datacleaned$AL_6H)\par
+datacleaned$baan <-as.factor (datacleaned$baan)\par
+datacleaned$sex <- as.factor (datacleaned$sex)\par
+datacleaned$age <- as.numeric (datacleaned$age)\par
+datacleaned$education <- as.character (datacleaned$education)\par
+datacleaned$smsvfdieren <- as.numeric (datacleaned$smsvfdieren)\par
+datacleaned$beroep <- as.factor (datacleaned$beroep)\par
+datacleaned$sms15wtrc <- as.numeric (datacleaned$sms15wtrc)\par
+datacleaned$sms15wttc <- as.numeric (datacleaned$sms15wttc)\par
+datacleaned$smsreyrec <- as.numeric (datacleaned$smsreyrec)\par
+\par
+table (datacleaned$education)\par
+summary(datacleaned$smsmmse)\par
+\par
+#recode education\par
+datacleaned$cateducation<- datacleaned$education\par
+datacleaned$cateducation[datacleaned$education== "geen opleiding/lager onderwijs"] <- "low"\par
+datacleaned$cateducation[datacleaned$cateducation== "LBO" | datacleaned$cateducation == "MO" |datacleaned$cateducation == "MBO" |datacleaned$cateducation == "HAVO / HBS / MMS" |datacleaned$cateducation == "VWO / Gymnasium"] <- "medium"\par
+datacleaned$cateducation[datacleaned$cateducation == "HBO"|datacleaned$cateducation == "WO of gepromoveerd"] <- "high"\par
+table (datacleaned$cateducation)\par
+\par
+#making variable experts cut-off score 7\par
+datacleaned$experts7 <-datacleaned$studienr\par
+datacleaned$experts7 [datacleaned$studienr=="4335"|datacleaned$studienr=="4099"|datacleaned$studienr=="5605"|datacleaned$studienr=="4854"|datacleaned$studienr=="3301"|datacleaned$studienr=="3623"|\par
+                        datacleaned$studienr=="4145"|datacleaned$studienr=="4347"|datacleaned$studienr=="4333"|datacleaned$studienr=="4332"|datacleaned$studienr=="4109"|\par
+                        datacleaned$studienr=="4108"|datacleaned$studienr=="4311"|datacleaned$studienr=="4097"|datacleaned$studienr=="4055"|datacleaned$studienr=="4025"|\par
+                        datacleaned$studienr=="5628"|datacleaned$studienr=="5603"|datacleaned$studienr=="5600"|datacleaned$studienr=="5904"|datacleaned$studienr=="5555"|\par
+                        datacleaned$studienr=="5434"|datacleaned$studienr=="5405"|datacleaned$studienr=="5289"|datacleaned$studienr=="5737"|datacleaned$studienr=="5428"|\par
+                        datacleaned$studienr=="5236"|datacleaned$studienr=="5717"|datacleaned$studienr=="5702"|datacleaned$studienr=="5223"|datacleaned$studienr=="5218"|\par
+                        datacleaned$studienr=="5059"|datacleaned$studienr=="5045"|datacleaned$studienr=="5021"|datacleaned$studienr=="5006"|datacleaned$studienr=="5109"|\par
+                        datacleaned$studienr=="4959"|datacleaned$studienr=="4867"|datacleaned$studienr=="4889"|datacleaned$studienr=="4887"|datacleaned$studienr=="4868"|\par
+                        datacleaned$studienr=="4837"|datacleaned$studienr=="4807"|datacleaned$studienr=="4682"|datacleaned$studienr=="2849"|datacleaned$studienr=="2933"|\par
+                        datacleaned$studienr=="2922"|datacleaned$studienr=="3073"|datacleaned$studienr=="2822"|datacleaned$studienr=="2808"|datacleaned$studienr=="2639"|\par
+                        datacleaned$studienr=="2557"|datacleaned$studienr=="2751"|datacleaned$studienr=="2687"|datacleaned$studienr=="2680"|datacleaned$studienr=="3260"|\par
+                        datacleaned$studienr=="3389"|datacleaned$studienr=="3142"|datacleaned$studienr=="3360"|datacleaned$studienr=="3355"|datacleaned$studienr=="3093"|\par
+                        datacleaned$studienr=="3718"|datacleaned$studienr=="3714"|datacleaned$studienr=="3682"|datacleaned$studienr=="3577"|datacleaned$studienr=="3607"|\par
+                        datacleaned$studienr=="3624"|datacleaned$studienr=="3466"|datacleaned$studienr=="4008"|datacleaned$studienr=="4006"|datacleaned$studienr=="4005"|\par
+                        datacleaned$studienr=="4002"|datacleaned$studienr=="3787"|datacleaned$studienr=="3750"|datacleaned$studienr=="3722"|datacleaned$studienr=="4604"|\par
+                        datacleaned$studienr=="4600"|datacleaned$studienr=="4595"|datacleaned$studienr=="4546"|datacleaned$studienr=="4527"|datacleaned$studienr=="4402"|\par
+                        datacleaned$studienr=="4377"|datacleaned$studienr=="4363"|datacleaned$studienr=="4361"|datacleaned$studienr=="4388"|datacleaned$studienr=="4299"|\par
+                        datacleaned$studienr=="4283"|datacleaned$studienr=="4025"|datacleaned$studienr=="4197"|datacleaned$studienr=="4332"|datacleaned$studienr=="5608"|\par
+                        datacleaned$studienr=="5936"|datacleaned$studienr=="5809"|datacleaned$studienr=="5808"|datacleaned$studienr=="5784"|datacleaned$studienr=="5404"|\par
+                        datacleaned$studienr=="5411"|datacleaned$studienr=="5083"|datacleaned$studienr=="4988"|datacleaned$studienr=="4866"|datacleaned$studienr=="4844"|\par
+                        datacleaned$studienr=="4769"|datacleaned$studienr=="2860"|datacleaned$studienr=="2916"|datacleaned$studienr=="2663"|datacleaned$studienr=="2803"|\par
+                        datacleaned$studienr=="2590"|datacleaned$studienr=="2575"|datacleaned$studienr=="2559"|datacleaned$studienr=="2522"|\par
+                        datacleaned$studienr=="2521"|datacleaned$studienr=="2499"|datacleaned$studienr=="2750"|datacleaned$studienr=="3218"|datacleaned$studienr=="3099"|\par
+                        datacleaned$studienr=="3098"|datacleaned$studienr=="3598"|datacleaned$studienr=="3574"|datacleaned$studienr=="3570"|datacleaned$studienr=="3481"|\par
+                        datacleaned$studienr=="3458"|datacleaned$studienr=="3428"|datacleaned$studienr=="3427"|datacleaned$studienr=="3913"|datacleaned$studienr=="3951"|\par
+                        datacleaned$studienr=="3933"|datacleaned$studienr=="3824"|datacleaned$studienr=="3799"|datacleaned$studienr=="3766"|datacleaned$studienr=="3719"|\par
+                        datacleaned$studienr=="4605"|datacleaned$studienr=="4391"|datacleaned$studienr=="4369"|datacleaned$studienr=="4475"|datacleaned$studienr=="4338"|\par
+                        datacleaned$studienr=="2591"|datacleaned$studienr=="2521"|datacleaned$studienr=="3554"|datacleaned$studienr=="4082"|datacleaned$studienr=="4288"|\par
+                        datacleaned$studienr=="5897"|datacleaned$studienr=="5767"|datacleaned$studienr=="5755"|datacleaned$studienr=="5256"|datacleaned$studienr=="5058"|\par
+                        datacleaned$studienr=="4977"|datacleaned$studienr=="4690"|datacleaned$studienr=="4646"|datacleaned$studienr=="4627"|datacleaned$studienr=="2885"|\par
+                        datacleaned$studienr=="2883"|datacleaned$studienr=="3078"|datacleaned$studienr=="3047"|datacleaned$studienr=="2825"|datacleaned$studienr=="2817"|\par
+                        datacleaned$studienr=="2812"|datacleaned$studienr=="2657"|datacleaned$studienr=="2792"|datacleaned$studienr=="2665"|datacleaned$studienr=="2674"|\par
+                        datacleaned$studienr=="3189"|datacleaned$studienr=="3148"|datacleaned$studienr=="3319"|datacleaned$studienr=="3683"|datacleaned$studienr=="3549"|\par
+                        datacleaned$studienr=="3501"|datacleaned$studienr=="3449"|datacleaned$studienr=="3908"|datacleaned$studienr=="3839"|datacleaned$studienr=="3806"|\par
+                        datacleaned$studienr=="3736"|datacleaned$studienr=="3721"|datacleaned$studienr=="4622"|datacleaned$studienr=="4427"|datacleaned$studienr=="4159"|\par
+                        datacleaned$studienr=="4093"|datacleaned$studienr=="4083"|datacleaned$studienr=="5650"|datacleaned$studienr=="5638"|datacleaned$studienr=="5560"|\par
+                        datacleaned$studienr=="5319"|datacleaned$studienr=="5231"|datacleaned$studienr=="4654"|datacleaned$studienr=="4644"|datacleaned$studienr=="2959"|\par
+                        datacleaned$studienr=="2939"|datacleaned$studienr=="2990"|datacleaned$studienr=="2841"|datacleaned$studienr=="2549"|datacleaned$studienr=="2787"|\par
+                        datacleaned$studienr=="2697"|datacleaned$studienr=="2670"|datacleaned$studienr=="3226"|datacleaned$studienr=="3369"|datacleaned$studienr=="2399"|\par
+                        datacleaned$studienr=="3606"|datacleaned$studienr=="3547"|datacleaned$studienr=="3514"|datacleaned$studienr=="3471"|datacleaned$studienr=="3435"|\par
+                        datacleaned$studienr=="3745"|datacleaned$studienr=="4612"|datacleaned$studienr=="4670"|datacleaned$studienr=="4568"|datacleaned$studienr=="4544"|\par
+                        datacleaned$studienr=="5992"|datacleaned$studienr=="5423"|datacleaned$studienr=="5306"|datacleaned$studienr=="5253"|datacleaned$studienr=="4951"|\par
+                        datacleaned$studienr=="4943"|datacleaned$studienr=="4696"|datacleaned$studienr=="2926"|datacleaned$studienr=="3024"|datacleaned$studienr=="2627"|\par
+                        datacleaned$studienr=="2805"|datacleaned$studienr=="3342"|datacleaned$studienr=="3696"|datacleaned$studienr=="3637"|datacleaned$studienr=="3569"|\par
+                        datacleaned$studienr=="3442"|datacleaned$studienr=="3999"|datacleaned$studienr=="3835"|datacleaned$studienr=="3798"|datacleaned$studienr=="4752"|\par
+                        datacleaned$studienr=="4580"|datacleaned$studienr=="4518"|datacleaned$studienr=="4081"|datacleaned$studienr=="5603"|datacleaned$studienr=="5880"|\par
+                        datacleaned$studienr=="5483"|datacleaned$studienr=="5381"|datacleaned$studienr=="5280"|datacleaned$studienr=="2997"|datacleaned$studienr=="2514"|\par
+                        datacleaned$studienr=="2673"|datacleaned$studienr=="3656"|datacleaned$studienr=="3996"|datacleaned$studienr=="3902"|datacleaned$studienr=="5688"|\par
+                        datacleaned$studienr=="5229"|datacleaned$studienr=="3030"|datacleaned$studienr=="2834"|datacleaned$studienr=="2616"|datacleaned$studienr=="2791"|\par
+                        datacleaned$studienr=="2594"|datacleaned$studienr=="3420"|datacleaned$studienr=="3285"|datacleaned$studienr=="3522"|datacleaned$studienr=="3443"|\par
+                        datacleaned$studienr=="3976"|datacleaned$studienr=="3907"|datacleaned$studienr=="3749"|datacleaned$studienr=="4608"] <- "expert" \par
+datacleaned$experts7[!datacleaned$experts7== "expert"]<- "non-expert"\par
+table (datacleaned$experts7)\par
+datacleaned$experts7<- as.character(datacleaned$experts7)\par
+table1 (~sex*smsvfdieren|experts7, data=datacleaned)\par
+\par
+#making variable with experts non experts for 10 or more animals\par
+datacleaned$experts10 <-datacleaned$studienr\par
+datacleaned$experts10 [datacleaned$studienr=="4159"|\par
+                         datacleaned$studienr=="4093"|datacleaned$studienr=="4083"|datacleaned$studienr=="5650"|datacleaned$studienr=="5638"|datacleaned$studienr=="5560"|\par
+                         datacleaned$studienr=="5319"|datacleaned$studienr=="5231"|datacleaned$studienr=="4654"|datacleaned$studienr=="4644"|datacleaned$studienr=="2959"|\par
+                         datacleaned$studienr=="2939"|datacleaned$studienr=="2990"|datacleaned$studienr=="2841"|datacleaned$studienr=="2549"|datacleaned$studienr=="2787"|\par
+                         datacleaned$studienr=="2697"|datacleaned$studienr=="2670"|datacleaned$studienr=="3226"|datacleaned$studienr=="3369"|datacleaned$studienr=="2399"|\par
+                         datacleaned$studienr=="3606"|datacleaned$studienr=="3547"|datacleaned$studienr=="3514"|datacleaned$studienr=="3471"|datacleaned$studienr=="3435"|\par
+                         datacleaned$studienr=="3745"|datacleaned$studienr=="4612"|datacleaned$studienr=="4670"|datacleaned$studienr=="4568"|datacleaned$studienr=="4544"|\par
+                         datacleaned$studienr=="5992"|datacleaned$studienr=="5423"|datacleaned$studienr=="5306"|datacleaned$studienr=="5253"|datacleaned$studienr=="4951"|\par
+                         datacleaned$studienr=="4943"|datacleaned$studienr=="4696"|datacleaned$studienr=="2926"|datacleaned$studienr=="3024"|datacleaned$studienr=="2627"|\par
+                         datacleaned$studienr=="2805"|datacleaned$studienr=="3342"|datacleaned$studienr=="3696"|datacleaned$studienr=="3637"|datacleaned$studienr=="3569"|\par
+                         datacleaned$studienr=="3442"|datacleaned$studienr=="3999"|datacleaned$studienr=="3835"|datacleaned$studienr=="3798"|datacleaned$studienr=="4752"|\par
+                         datacleaned$studienr=="4580"|datacleaned$studienr=="4518"|datacleaned$studienr=="4081"|datacleaned$studienr=="5603"|datacleaned$studienr=="5880"|\par
+                         datacleaned$studienr=="5483"|datacleaned$studienr=="5381"|datacleaned$studienr=="5280"|datacleaned$studienr=="2997"|datacleaned$studienr=="2514"|\par
+                         datacleaned$studienr=="2673"|datacleaned$studienr=="3656"|datacleaned$studienr=="3996"|datacleaned$studienr=="3902"|datacleaned$studienr=="5688"|\par
+                         datacleaned$studienr=="5229"|datacleaned$studienr=="3030"|datacleaned$studienr=="2834"|datacleaned$studienr=="2616"|datacleaned$studienr=="2791"|\par
+                         datacleaned$studienr=="2594"|datacleaned$studienr=="3420"|datacleaned$studienr=="3285"|datacleaned$studienr=="3522"|datacleaned$studienr=="3443"|\par
+                         datacleaned$studienr=="3976"|datacleaned$studienr=="3907"|datacleaned$studienr=="3749"|datacleaned$studienr=="4608"] <- "expert" \par
+datacleaned$experts10 [!datacleaned$experts10== "expert"]<- "non-expert"\par
+\par
+datacleaned$experts10<- as.character(datacleaned$experts10)\par
+\par
+table (datacleaned$experts10)\par
+library (Formula)\par
+library (table1)\par
+library (knitr)\par
+library (xfun)\par
+library (htmltools)\par
+library (rlang)\par
+\par
+\par
+#CCA dataset\par
+\par
+datacca <-datacleaned[complete.cases(datacleaned$smsvfdieren),]\par
+\par
+rm (datacleaned)\par
+\par
+table1 (~sex|experts7, data=datacca)\par
+summary(datacca$smsmmse)\par
+\par
+#relevel experts 7 \par
+datacca$recexperts7 [datacca$experts7== "expert"] <- "1"\par
+datacca$recexperts7 [datacca$experts7== "non-expert"] <- "0"\par
+table (datacca$recexperts7)\par
+datacca$recexperts7 <- as.factor (datacca$recexperts7)\par
+relevel(datacca$recexperts7, ref= "0")\par
+\par
+#relevel experts10\par
+datacca$recexperts10 [datacca$experts10== "expert"] <- "1"\par
+datacca$recexperts10 [datacca$experts10== "non-expert"] <- "0"\par
+table (datacca$recexperts10)\par
+datacca$recexperts10 <- as.factor (datacca$recexperts10)\par
+relevel(datacca$recexperts10, ref= "0")\par
+\par
+\par
+#profession one variable\par
+#recoding professions to yes/no\par
+datacca$AL_6A1[datacca$AL_6A== "Ja"] <- "1"\par
+datacca$AL_6A1[datacca$AL_6A== "Nee"] <- "0"\par
+datacca$AL_6A1 <- as.numeric (datacca$AL_6A1)\par
+table (datacca$AL_6A1)\par
+datacca$AL_6B1[datacca$AL_6B== "Ja"] <- "1"\par
+datacca$AL_6B1[datacca$AL_6B== "Nee"] <- "0"\par
+datacca$AL_6B1 <- as.numeric (datacca$AL_6B1)\par
+table (datacca$AL_6B1)\par
+datacca$AL_6C1[datacca$AL_6C== "Ja"] <- "1"\par
+datacca$AL_6C1[datacca$AL_6C== "Nee"] <- "0"\par
+datacca$AL_6C1 <- as.numeric (datacca$AL_6C1)\par
+table (datacca$AL_6C1)\par
+datacca$AL_6D1[datacca$AL_6D== "Ja"] <- "1"\par
+datacca$AL_6D1[datacca$AL_6D== "Nee"] <- "0"\par
+datacca$AL_6D1 <- as.numeric (datacca$AL_6D1)\par
+table (datacca$AL_6D1)\par
+datacca$AL_6E1[datacca$AL_6E== "Ja"] <- "1"\par
+datacca$AL_6E1[datacca$AL_6E== "Nee"] <- "0"\par
+datacca$AL_6E1 <- as.numeric (datacca$AL_6E1)\par
+table (datacca$AL_6E1)\par
+datacca$AL_6F1[datacca$AL_6F== "Ja"] <- "1"\par
+datacca$AL_6F1[datacca$AL_6F== "Nee"] <- "0"\par
+datacca$AL_6F1 <- as.numeric (datacca$AL_6F1)\par
+table (datacca$AL_6F1)\par
+datacca$AL_6G1[datacca$AL_6G== "Ja"] <- "1"\par
+datacca$AL_6G1[datacca$AL_6G== "Nee"] <- "0"\par
+datacca$AL_6G1 <- as.numeric (datacca$AL_6G1)\par
+table (datacca$AL_6G1)\par
+datacca$AL_6H1[datacca$AL_6H== "Ja"] <- "1"\par
+datacca$AL_6H1[datacca$AL_6H== "Nee"] <- "0"\par
+datacca$AL_6H1 <- as.numeric (datacca$AL_6H1)\par
+\par
+datacca$som <- cbind(datacca$AL_6A1, datacca$AL_6B1, datacca$AL_6C1, datacca$AL_6D1, datacca$AL_6E1, datacca$AL_6F1, datacca$AL_6G1, datacca$AL_6H1) \par
+datacca$try <- rowSums (datacca$som)\par
+datacca$multiplejob [datacca$try>1] <- "1"\par
+datacca$multiplejob [datacca$try==1] <- "0"\par
+datacca$multiplejob [datacca$try==0] <- "0"\par
+table (datacca$multiplejob)  \par
+\par
+datacca$profession [datacca$AL_6A1==1 & datacca$multiple==0] <- "Higher profesion"\par
+datacca$profession [datacca$AL_6B1==1 & datacca$multiple==0] <- "Senior administrative"\par
+datacca$profession [datacca$AL_6C1==1 & datacca$multiple==0] <- "Technical and related professions"\par
+datacca$profession [datacca$AL_6D1==1 & datacca$multiple==0] <- "Administrative and sales profession"\par
+datacca$profession [datacca$AL_6E1==1 & datacca$multiple==0] <- "Craft professions"\par
+datacca$profession [datacca$AL_6F1==1 & datacca$multiple==0] <- "Uneducated staff"\par
+datacca$profession [datacca$AL_6G1==1 & datacca$multiple==0] <- "Self-employed"\par
+datacca$profession [datacca$AL_6H1==1 & datacca$multiple==0] <- "Military profession"\par
+datacca$profession [datacca$multiple==1] <- "Multiple profession"\par
+datacca$profession [datacca$AL_6A1==0 & datacca$AL_6B1==0 & datacca$AL_6C1==0 & datacca$AL_6D1==0 & datacca$AL_6E1==0 & datacca$AL_6F1==0 & datacca$AL_6G1==0 & datacca$AL_6H1==0 & datacca$multiple==0] <- "Other"\par
+table (datacca$profession)\par
+\par
+#mmse cut-off bij 24\par
+datacca$smsmmse <- as.character(datacca$smsmmse)\par
+datacca$smsmmse <- as.numeric(datacca$smsmmse)\par
+summary((datacca$smsmmse))\par
+datacca$mmse24 [datacca$smsmmse <=26 ] <- "1"\par
+datacca$mmse24 [datacca$smsmmse >26 ] <- "0"\par
+summary(as.factor(datacca$mmse24))\par
+datacca$mmse24 <- as.factor(datacca$mmse24)\par
+\par
+#relevel low as reference\par
+datacca$cateducation1 [datacca$cateducation== "low"] <- "0"\par
+datacca$cateducation1 [datacca$cateducation== "medium"] <- "1"\par
+datacca$cateducation1 [datacca$cateducation== "high"] <- "2"\par
+table (datacca$cateducation1)\par
+datacca$cateducation1 <- as.factor (datacca$cateducation1)\par
+\par
+relevel(datacca$cateducation1, ref= "0")\par
+\par
+## Vector of variables to summarize\par
+myvars <- c("sex", "age", "cateducation1", "smsvfdieren", "experts7", "experts10", "baan", "profession", "sms15wttc", "sms15wtrc", "smsreyrec", "smsmmse", "smsnlvscor")\par
+## Vector of categorical variables that need transformation\par
+catvars <- c("profession", "baan", "sex", "cateducation1","experts7", "experts10")\par
+\par
+#baseline characteristics complete case dataset total\par
+library (tableone)\par
+\par
+CreateTableOne(vars = myvars, data = datacca, factorVars = catvars)\par
+#baseline characteristics complete case dataset per experts 7\par
+CreateTableOne(vars = myvars, strata ="experts7", data = datacca, factorVars = catvars)\par
+#baseline characteristics complete case dataset per experts 10\par
+CreateTableOne(vars = myvars, strata ="experts10", data = datacca, factorVars = catvars)\par
+\par
+\par
+table1 (~sex + age+ cateducation+ smsvfdieren+ experts7+ experts10+ baan+ AL_6A+ AL_6B+ AL_6C+ AL_6D+ AL_6E+ AL_6F+ AL_6G+ AL_6H)\par
+table1 (~sex + age+ cateducation+ as.numeric(smsvfdieren)+ as.numeric(smsvfletter) + as.numeric(smsmmse) + experts10+ baan+ AL_6A+ AL_6B+ AL_6C+ AL_6D+ AL_6E+ AL_6F+ AL_6G+ AL_6H+ mmse24+ sms15wttc + sms15wtrc + smsreyrec+ as.numeric(smsnlvscor) |experts7, data=datacca)\par
+table1 (~sex + age+ cateducation+ smsvfdieren+ as.numeric(smsvfletter) + baan+ AL_6A+ AL_6B+ AL_6C+ AL_6D+ AL_6E+ AL_6F+ AL_6G+ AL_6H + mmse24 + sms15wttc + sms15wtrc + smsreyrec + as.numeric(smsnlvscor)|experts10 , data=datacca)\par
+\par
+#chi-square tests and t-tests\par
+\par
+datacca$AL_5 <-as.factor (datacca$AL_5)\par
+datacca$AL_5A <-as.factor (datacca$AL_5A)\par
+datacca$profession <- as.factor (datacca$profession)\par
+datacca$baan <-as.factor (datacca$baan)\par
+datacca$sex <- as.factor (datacca$sex)\par
+datacca$age <- as.numeric (datacca$age)\par
+datacca$cateducation <- as.character (datacca$cateducation)\par
+datacca$smsvfdieren <- as.numeric (datacca$smsvfdieren)\par
+datacca$beroep <- as.factor (datacca$beroep)\par
+datacca$sms15wtrc <- as.numeric (datacca$sms15wtrc)\par
+datacca$sms15wttc <- as.numeric (datacca$sms15wttc)\par
+datacca$smsreyrec <- as.numeric (datacca$smsreyrec)\par
+\par
+\par
+#relevel cateduc\par
+datacca$cateducation <- as.factor (datacca$cateducation)\par
+levels(datacca$cateducation)<- c("low", "medium", "high")\par
+relevel(datacca$cateducation, ref= "low")\par
+\par
+#statistical tests\par
+#statistical test\par
+library (tableone)\par
+library (table1)\par
+table1 (~datacca$age|datacca$recexperts7)\par
+table1 (~datacca$age|datacca$recexperts10)\par
+boxplot(age~recexperts7, data=datacca)\par
+boxplot (age~recexperts10, data=datacca)\par
+\par
+#t-test age experts 7\par
+t.test(age~factor (recexperts7), data=datacca,\par
+       conf.level = 0.95)\par
+#t-test age experts 10\par
+t.test(age~recexperts10, data=datacca,\par
+       conf.level = 0.95)\par
+\par
+#chi-square tests sex\par
+tab1 <- table (factor(datacca$sex), factor(datacca$recexperts7))\par
+chisq.test(tab1)\par
+riskratio(tab1, conf.level=0.95)\par
+tab2 <- table (factor(datacca$sex), factor(datacca$recexperts10))\par
+chisq.test(tab2)\par
+riskratio(tab2, conf.level=0.95)\par
+\par
+#chi-square tests categorical education\par
+tab3 <- table (datacca$cateducation1, factor(datacca$recexperts7))\par
+chisq.test(tab3)\par
+riskratio(tab3, conf.level=0.95)\par
+tab4 <- table (factor (datacca$cateducation1), factor(datacca$recexperts10))\par
+chisq.test(tab4)\par
+riskratio(tab4, conf.level=0.95)\par
+\par
+#profession for experts 7 with deleteting some professions\par
+datacca$profession7 [datacca$AL_6A1==1 & datacca$multiple==0] <- "Higher profesion"\par
+datacca$profession7 [datacca$AL_6B1==1 & datacca$multiple==0] <- "Senior administrative"\par
+datacca$profession7 [datacca$AL_6C1==1 & datacca$multiple==0] <- "Technical and related professions"\par
+datacca$profession7 [datacca$AL_6D1==1 & datacca$multiple==0] <- "Administrative and sales profession"\par
+datacca$profession7 [datacca$AL_6E1==1 & datacca$multiple==0] <- "Craft professions"\par
+datacca$profession7 [datacca$AL_6F1==1 & datacca$multiple==0] <- "Uneducated staff"\par
+datacca$profession7 [datacca$AL_6G1==1 & datacca$multiple==0] <- "Self-employed"\par
+table (datacca$profession7)\par
+\par
+#profession for experts 10 with deleting some professions\par
+datacca$profession10 [datacca$AL_6A1==1 & datacca$multiple==0] <- "Higher profesion"\par
+datacca$profession10 [datacca$AL_6B1==1 & datacca$multiple==0] <- "Senior administrative"\par
+datacca$profession10 [datacca$AL_6C1==1 & datacca$multiple==0] <- "Technical and related professions"\par
+datacca$profession10 [datacca$AL_6D1==1 & datacca$multiple==0] <- "Administrative and sales profession"\par
+datacca$profession10 [datacca$AL_6E1==1 & datacca$multiple==0] <- "Craft professions"\par
+datacca$profession10 [datacca$AL_6G1==1 & datacca$multiple==0] <- "Self-employed"\par
+table (datacca$profession10)\par
+\par
+#chi-square tests profession\par
+tab5 <- table (factor(datacca$profession7), factor(datacca$recexperts7))\par
+chisq.test(tab5)\par
+riskratio(tab5, conf.level=0.95)\par
+tab6 <- table (factor(datacca$profession10), factor(datacca$recexperts10))\par
+chisq.test(tab6)\par
+riskratio(tab6, conf.level=0.95)\par
+\par
+#Betaalde baan ja/nee\par
+datacca$pensioen [datacca$baan=="Ja"] <- "Ja"\par
+datacca$pensioen [datacca$baan=="Nee, ik ben gepensioneerd"] <- "Nee, ik ben gepensioneerd"\par
+table(datacca$pensioen)\par
+\par
+#chi-square test payed job\par
+tab7 <- table (factor(datacca$pensioen), factor(datacca$recexperts7))\par
+chisq.test(tab7)\par
+riskratio(tab7, conf.level=0.95)\par
+tab8 <- table (factor(datacca$pensioen), factor(datacca$recexperts10))\par
+chisq.test(tab8)\par
+riskratio(tab8, conf.level=0.95)\par
+\par
+#chi-square tests MMSE\par
+tab9 <- table (factor(datacca$mmse24), factor(datacca$recexperts7))\par
+chisq.test(tab9)\par
+riskratio(tab9, conf.level=0.95)\par
+tab10 <- table (factor(datacca$mmse24), factor(datacca$recexperts10))\par
+chisq.test(tab10)\par
+riskratio(tab10, conf.level=0.95)\par
+\par
+hist (sms15wttc)\par
+hist (sms15wtrc)\par
+hist (smsreyrec)\par
+\par
+#linear regressions memory functioning\par
+library (gvlma)\par
+\par
+#linear regression 15wttc, 15wtrc and reyrec experts 7\par
+mod1 <- lm (sms15wttc ~ factor (recexperts7), data=datacca)\par
+summary (mod1)\par
+confint (mod1)\par
+mod1a <- lm (sms15wttc ~ age + factor(sex) + factor (cateducation) + factor(recexperts7), data=datacca)\par
+summary (mod1a)\par
+confint (mod1a)\par
+#check assumptions\par
+par (mfrow=c(2,2))\par
+gvlma::gvlma(mod1)\par
+plot (mod1) \par
+mod2 <- lm (sms15wtrc ~ factor (recexperts7), data=datacca)\par
+summary (mod2)\par
+confint (mod2)\par
+mod2a <- lm (sms15wtrc ~ age + factor(sex) + factor (cateducation) + factor(recexperts7), data=datacca)\par
+summary (mod2a)\par
+confint (mod2a)\par
+mod3 <- lm (smsreyrec ~ factor (recexperts7), data=datacca)\par
+summary (mod3)\par
+confint (mod3)\par
+mod3a <- lm (smsreyrec ~ age + factor(sex) + factor (cateducation) + factor(recexperts7), data=datacca)\par
+summary (mod3a)\par
+confint (mod3a)\par
+\par
+#linear regression 15wttc, 15wtrc and reyrec experts 10\par
+mod4 <- lm (sms15wttc ~ factor (recexperts10), data=datacca)\par
+summary (mod4)\par
+confint (mod4)\par
+mod4a <- lm (sms15wttc ~ age + factor(sex) + factor (cateducation) + factor(recexperts10), data=datacca)\par
+summary (mod4a)\par
+confint (mod4a)\par
+mod5 <- lm (sms15wtrc ~ factor (recexperts10), data=datacca)\par
+summary (mod5)\par
+confint (mod5)\par
+mod5a <- lm (sms15wtrc ~ age + factor(sex) + factor (cateducation) + factor(recexperts10), data=datacca)\par
+summary (mod5a)\par
+confint (mod5a)\par
+mod6 <- lm (smsreyrec ~ factor (recexperts10), data=datacca)\par
+summary (mod6)\par
+confint (mod6)\par
+mod6a <- lm (smsreyrec ~ age + factor(sex) + factor (cateducation) + factor(recexperts10), data=datacca)\par
+summary (mod6a)\par
+confint (mod6a)\par
+\par
+#lineaire regressies animal fluency\par
+#experts7\par
+modanimal7 <- lm (smsvfdieren ~ factor (recexperts7), data=datacca)\par
+summary (modanimal7)\par
+confint (modanimal7)\par
+modanimal7a <- lm (smsvfdieren ~ age + factor(sex) + factor (cateducation) + factor(recexperts7), data=datacca)\par
+summary (modanimal7a)\par
+confint (modanimal7a)\par
+#experts 10\par
+modanimal10 <- lm (smsvfdieren ~ factor (recexperts10), data=datacca)\par
+summary (modanimal10)\par
+confint (modanimal10)\par
+modanimal10a <- lm (smsvfdieren ~ age + factor(sex) + factor (cateducation) + factor(recexperts10), data=datacca)\par
+summary (modanimal10a)\par
+confint (modanimal10a)\par
+\par
+#lineaire regressies letter fluency\par
+datacca$smsvfletter <- as.numeric (datacca$smsvfletter)\par
+#experts7\par
+modletter7 <- lm (smsvfletter ~ factor (recexperts7), data=datacca)\par
+summary (modletter7)\par
+confint (modletter7)\par
+modletter7a <- lm (smsvfletter ~ age + factor(sex) + factor (cateducation) + factor(recexperts7), data=datacca)\par
+summary (modletter7a)\par
+confint (modletter7a)\par
+#experts 10\par
+modletter10 <- lm (smsvfletter ~ factor (recexperts10), data=datacca)\par
+summary (modletter10)\par
+confint (modletter10)\par
+modletter10a <- lm (smsvfletter ~ age + factor(sex) + factor (cateducation) + factor(recexperts10), data=datacca)\par
+summary (modletter10a)\par
+confint (modletter10a)\par
+\par
+#lineaire regressies DART\par
+datacca$smsnlvscor <- as.numeric (datacca$smsnlvscor)\par
+#experts7\par
+moddart7 <- lm (smsnlvscor ~ factor (recexperts7), data=datacca)\par
+summary (moddart7)\par
+confint (moddart7)\par
+moddart7a <- lm (smsnlvscor ~ age + factor(sex) + factor (cateducation) + factor(recexperts7), data=datacca)\par
+summary (moddart7a)\par
+confint (moddart7a)\par
+#experts 10\par
+moddart10 <- lm (smsnlvscor ~ factor (recexperts10), data=datacca)\par
+summary (moddart10)\par
+confint (moddart10)\par
+moddart10a <- lm (smsnlvscor ~ age + factor(sex) + factor (cateducation) + factor(recexperts10), data=datacca)\par
+summary (moddart10a)\par
+confint (moddart10a)\par
+\par
+summary(datacca$smsnlvscor)\par
+summary(datacca$mmse24)\par
+\par
+#kijken wat er gebeurt als ik de 33 mensen met veel + eruit haal\par
+datacca$veelplus <- datacca$studienr\par
+datacca$veelplus [datacca$studienr == "4435"| datacca$studienr == "4099"| datacca$studienr =="4097"|datacca$studienr == "4064"|\par
+                    datacca$studienr == "4261"|\par
+                    datacca$studienr == "4243"| datacca$studienr == "4164"| datacca$studienr == "5677"| datacca$studienr =="5605"|\par
+                    datacca$studienr == "5784"|datacca$studienr == "5394"|datacca$studienr == "5469"| datacca$studienr == "5434"|\par
+                    datacca$studienr == "5231"| datacca$studienr == "5021"| datacca$studienr == "5006"| datacca$studienr == "4827"|\par
+                    datacca$studienr == "4718"| datacca$studienr == "4693"| datacca$studienr == "4654"| datacca$studienr == "4633"|\par
+                    datacca$studienr == "3260"| datacca$studienr == "3230"| datacca$studienr == "3140"| datacca$studienr == "3411"|\par
+                    datacca$studienr == "3299"| datacca$studienr == "3301"| datacca$studienr == "3623"| datacca$studienr == "3547"|\par
+                    datacca$studienr == "3524"| datacca$studienr == "3465"| datacca$studienr == "3773"| datacca$studienr == "3772"] <- "veel"\par
+datacca$veelplus [!datacca$veelplus== "veel"]<- "niet veel"\par
+\par
+datacca$veelplus<- as.character(datacca$veelplus)\par
+summary(as.factor(datacca$veelplus))\par
+\par
+#nieuwe dataset zonder plussne\par
+zonderplus <- subset(datacca, veelplus=="niet veel")\par
+\par
+#chi-square tests and t-tests\par
+\par
+zonderplus$AL_5 <-as.factor (zonderplus$AL_5)\par
+zonderplus$AL_5A <-as.factor (zonderplus$AL_5A)\par
+zonderplus$profession <- as.factor (zonderplus$profession)\par
+zonderplus$baan <-as.factor (zonderplus$baan)\par
+zonderplus$sex <- as.factor (zonderplus$sex)\par
+zonderplus$age <- as.numeric (zonderplus$age)\par
+zonderplus$cateducation <- as.character (zonderplus$cateducation)\par
+zonderplus$smsvfdieren <- as.numeric (zonderplus$smsvfdieren)\par
+zonderplus$beroep <- as.factor (zonderplus$beroep)\par
+zonderplus$sms15wtrc <- as.numeric (zonderplus$sms15wtrc)\par
+zonderplus$sms15wttc <- as.numeric (zonderplus$sms15wttc)\par
+zonderplus$smsreyrec <- as.numeric (zonderplus$smsreyrec)\par
+\par
+\par
+#relevel cateduc\par
+zonderplus$cateducation <- as.factor (zonderplus$cateducation)\par
+levels(zonderplus$cateducation)<- c("low", "medium", "high")\par
+relevel(zonderplus$cateducation, ref= "low")\par
+\par
+rm(datacca)\par
+\par
+#statistical tests\par
+#statistical test\par
+library (tableone)\par
+library (table1)\par
+table1 (~zonderplus$age|zonderplus$recexperts7)\par
+table1 (~zonderplus$age|zonderplus$recexperts10)\par
+boxplot(age~recexperts7, data=zonderplus)\par
+boxplot (age~recexperts10, data=zonderplus)\par
+\par
+#t-test age experts 7\par
+t.test(age~factor (recexperts7), data=zonderplus,\par
+       conf.level = 0.95)\par
+#t-test age experts 10\par
+t.test(age~recexperts10, data=zonderplus,\par
+       conf.level = 0.95)\par
+\par
+#chi-square tests sex\par
+tab1 <- table (factor(zonderplus$sex), factor(zonderplus$recexperts7))\par
+chisq.test(tab1)\par
+riskratio(tab1, conf.level=0.95)\par
+tab2 <- table (factor(zonderplus$sex), factor(zonderplus$recexperts10))\par
+chisq.test(tab2)\par
+riskratio(tab2, conf.level=0.95)\par
+\par
+#chi-square tests categorical education\par
+tab3 <- table (zonderplus$cateducation1, factor(zonderplus$recexperts7))\par
+chisq.test(tab3)\par
+riskratio(tab3, conf.level=0.95)\par
+tab4 <- table (factor (zonderplus$cateducation1), factor(zonderplus$recexperts10))\par
+chisq.test(tab4)\par
+riskratio(tab4, conf.level=0.95)\par
+\par
+#t-test animal fluency\par
+t.test(smsvfdieren~factor (recexperts7), data=zonderplus,\par
+       conf.level = 0.95)\par
+#t-test animal fluency experts 10\par
+t.test(smsvfdieren~ factor(recexperts10), data=zonderplus,\par
+       conf.level = 0.95)\par
+\par
+#t-test letter fluency\par
+t.test(as.numeric(smsvfletter)~factor (recexperts7), data=zonderplus,\par
+       conf.level = 0.95)\par
+#t-test letter fluency experts 10\par
+t.test(as.numeric(smsvfletter)~ factor(recexperts10), data=zonderplus,\par
+       conf.level = 0.95)\par
+#profession for experts 7 with deleteting some professions\par
+zonderplus$profession7 [zonderplus$AL_6A1==1 & zonderplus$multiple==0] <- "Higher profesion"\par
+zonderplus$profession7 [zonderplus$AL_6B1==1 & zonderplus$multiple==0] <- "Senior administrative"\par
+zonderplus$profession7 [zonderplus$AL_6C1==1 & zonderplus$multiple==0] <- "Technical and related professions"\par
+zonderplus$profession7 [zonderplus$AL_6D1==1 & zonderplus$multiple==0] <- "Administrative and sales profession"\par
+zonderplus$profession7 [zonderplus$AL_6E1==1 & zonderplus$multiple==0] <- "Craft professions"\par
+zonderplus$profession7 [zonderplus$AL_6F1==1 & zonderplus$multiple==0] <- "Uneducated staff"\par
+zonderplus$profession7 [zonderplus$AL_6G1==1 & zonderplus$multiple==0] <- "Self-employed"\par
+table (zonderplus$profession7)\par
+\par
+#profession for experts 10 with deleteting some professions\par
+zonderplus$profession10 [zonderplus$AL_6A1==1 & zonderplus$multiple==0] <- "Higher profesion"\par
+zonderplus$profession10 [zonderplus$AL_6B1==1 & zonderplus$multiple==0] <- "Senior administrative"\par
+zonderplus$profession10 [zonderplus$AL_6C1==1 & zonderplus$multiple==0] <- "Technical and related professions"\par
+zonderplus$profession10 [zonderplus$AL_6D1==1 & zonderplus$multiple==0] <- "Administrative and sales profession"\par
+zonderplus$profession10 [zonderplus$AL_6E1==1 & zonderplus$multiple==0] <- "Craft professions"\par
+zonderplus$profession10 [zonderplus$AL_6G1==1 & zonderplus$multiple==0] <- "Self-employed"\par
+table (zonderplus$profession10)\par
+\par
+#chi-square tests profession\par
+tab5 <- table (factor(zonderplus$profession7), factor(zonderplus$recexperts7))\par
+chisq.test(tab5)\par
+riskratio(tab5, conf.level=0.95)\par
+tab6 <- table (factor(zonderplus$profession10), factor(zonderplus$recexperts10))\par
+chisq.test(tab6)\par
+riskratio(tab6, conf.level=0.95)\par
+\par
+#Betaalde baan ja/nee\par
+zonderplus$pensioen [zonderplus$baan=="Ja"] <- "Ja"\par
+zonderplus$pensioen [zonderplus$baan=="Nee, ik ben gepensioneerd"] <- "Nee, ik ben gepensioneerd"\par
+table(zonderplus$pensioen)\par
+\par
+#chi-square test payed job\par
+tab7 <- table (factor(zonderplus$pensioen), factor(zonderplus$recexperts7))\par
+chisq.test(tab7)\par
+riskratio(tab7, conf.level=0.95)\par
+tab8 <- table (factor(zonderplus$pensioen), factor(zonderplus$recexperts10))\par
+chisq.test(tab8)\par
+riskratio(tab8, conf.level=0.95)\par
+\par
+#chi-square tests MMSE\par
+tab9 <- table (factor(zonderplus$mmse24), factor(zonderplus$recexperts7))\par
+chisq.test(tab9)\par
+riskratio(tab9, conf.level=0.95)\par
+tab10 <- table (factor(zonderplus$mmse24), factor(zonderplus$recexperts10))\par
+chisq.test(tab10)\par
+riskratio(tab10, conf.level=0.95)\par
+\par
+hist (sms15wttc)\par
+hist (sms15wtrc)\par
+hist (smsreyrec)\par
+\par
+#linear regressions memory functioning\par
+library (gvlma)\par
+\par
+#linear regression 15wttc, 15wtrc and reyrec experts 7\par
+mod1zonderplus <- lm (sms15wttc ~ factor (recexperts7), data=zonderplus)\par
+summary (mod1zonderplus)\par
+confint (mod1zonderplus)\par
+mod1azonderplus <- lm (sms15wttc ~ age + factor(sex) + factor (cateducation) + factor(recexperts7), data=zonderplus)\par
+summary (mod1azonderplus)\par
+confint (mod1azonderplus)\par
+#check assumptions\par
+par (mfrow=c(2,2))\par
+gvlma::gvlma(mod1zonderplus)\par
+plot (mod1zonderplus) \par
+mod2zonderplus <- lm (sms15wtrc ~ factor (recexperts7), data=zonderplus)\par
+summary (mod2zonderplus)\par
+confint (mod2zonderplus)\par
+mod2azonderplus <- lm (sms15wtrc ~ age + factor(sex) + factor (cateducation) + factor(recexperts7), data=zonderplus)\par
+summary (mod2azonderplus)\par
+confint (mod2azonderplus)\par
+mod3zonderplus <- lm (smsreyrec ~ factor (recexperts7), data=zonderplus)\par
+summary (mod3zonderplus)\par
+confint (mod3zonderplus)\par
+mod3azonderplus <- lm (smsreyrec ~ age + factor(sex) + factor (cateducation) + factor(recexperts7), data=zonderplus)\par
+summary (mod3azonderplus)\par
+confint (mod3azonderplus)\par
+\par
+#linear regression 15wttc, 15wtrc and reyrec experts 10\par
+mod4zonderplus <- lm (sms15wttc ~ factor (recexperts10), data=zonderplus)\par
+summary (mod4zonderplus)\par
+confint (mod4zonderplus)\par
+mod4azonderplus <- lm (sms15wttc ~ age + factor(sex) + factor (cateducation) + factor(recexperts10), data=zonderplus)\par
+summary (mod4azonderplus)\par
+confint (mod4azonderplus)\par
+mod5zonderplus <- lm (sms15wtrc ~ factor (recexperts10), data=zonderplus)\par
+summary (mod5zonderplus)\par
+confint (mod5zonderplus)\par
+mod5azonderplus <- lm (sms15wtrc ~ age + factor(sex) + factor (cateducation) + factor(recexperts10), data=zonderplus)\par
+summary (mod5azonderplus)\par
+confint (mod5azonderplus)\par
+mod6zonderplus <- lm (smsreyrec ~ factor (recexperts10), data=zonderplus)\par
+summary (mod6zonderplus)\par
+confint (mod6zonderplus)\par
+mod6azonderplus <- lm (smsreyrec ~ age + factor(sex) + factor (cateducation) + factor(recexperts10), data=zonderplus)\par
+summary (mod6azonderplus)\par
+confint (mod6azonderplus)\par
+}
+ 
